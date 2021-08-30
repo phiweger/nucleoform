@@ -81,14 +81,19 @@ parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('-i', help='Protein fasta')
 parser.add_argument('-o', help='Dayhoff fasta')
 parser.add_argument('--length', help='Truncate to this', default=None, type=int)
+parser.add_argument('--skip-stop', help='Exclude stop codon *')
 parser.add_argument('--skip-header', help='Skip fasta header', action='store_true')
+
 args = parser.parse_args()
+
 
 
 with screed.open(args.i) as seqfile, open(args.o, 'w+') as out:
     for read in tqdm(seqfile):
         try:    
             seq = encode_dayhoff(read.sequence, lu)
+            if args.skip_stop:
+                seq = ''.join([i for i in seq if i != '*'])
             if args.length:
                 seq = seq[:args.length]
             if args.skip_header:
